@@ -18,10 +18,25 @@ let drawing;
 
 const ctx = canvas.getContext("2d");
 
+let liveCells = 0;
 function setup() {
     for(let i = 0; i < cols; i++) {
         for(let j = 0; j < rows; j++) {
-            grid[i][j] = Math.floor(Math.random() * 2);
+            let randomPositionX = Math.floor(Math.random() * (25 - 15) + 15);
+            let randomPositionY = Math.floor(Math.random() * (30 - 1) + 1);
+            if(i <= randomPositionX || j <= randomPositionY) {
+                grid[i][j] = 0;
+            } else {
+                if(liveCells == 50) {
+                    grid[i][j] = 0;
+                } else {
+                    grid[i][j] = Math.floor(Math.random() * 2);
+                    if(grid[i][j] == 1){
+                        liveCells++;
+                    }
+                }
+            }
+            
         }
     }
 }
@@ -40,13 +55,7 @@ btnPause.addEventListener("click", () => {
 });
 
 btnReset.addEventListener("click", () => {
-    btnPlay.classList.remove("hide");
-    btnPause.classList.add("hide");
-    btnReset.classList.add("hide");
-    clearInterval(drawing);
-    generation = 1;
-    genDisplay.textContent = 1;
-    draw();
+    location.reload();
 });
 
 
@@ -68,6 +77,7 @@ function draw() {
         }
     }
 
+    let cellsEqual = 0;
     for(let i = 0; i < cols; i++) {
         for(let j = 0; j < rows; j++) {
             let state = grid[i][j];
@@ -80,8 +90,18 @@ function draw() {
                 next[i][j] = 0;
             } else {
                 next[i][j] = state;
+                cellsEqual++;
             }
         }
+    }
+
+    if(cellsEqual == 1600) {
+        btnPause.classList.add("hide");
+        generation = generation;
+        clearInterval(drawing);
+        return;
+    } else {
+        cellsEqual = 0;
     }
 
     grid = next;
@@ -103,6 +123,7 @@ function countNeighbors(grid, x, y) {
 
 function startDrawing() {
     drawing = setInterval(() => {
+        console.log("Rodando!");
        draw();
        genDisplay.textContent = generation;
     }, 100);
